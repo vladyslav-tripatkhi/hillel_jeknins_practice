@@ -1,5 +1,29 @@
 pipeline {
-    agent any
+    agent {
+        label "docker"
+    }
+
+    environment {
+        MY_ENV = "SOME_VALUE"
+        OTHER_ENV = 123
+        MY_DEFAULT_STRING="DEFAULT_STRING_FROM_ENV"
+        SELECTED_AWS_REGION="${params.AWS_REGION}"
+    }
+
+    parameters {
+        string(
+            name: "my_string",
+            defaultValue: "Hello, world, I am a variable!",
+            description: "Just a string var"
+        )
+
+        choice(
+            name: "AWS_REGION",
+            choices: ["us-east-1", "us-west-1"],
+            description: "AWS region name",
+        )
+    }
+
     stages {
         stage("Checkout") {
             steps {
@@ -15,14 +39,15 @@ pipeline {
         
         stage("First stage") {
             steps {
-                echo "Hello! I'm a pipeline!"
-                sh "sudo || echo 'no sudo'"   
+                echo "${params.my_string}, ${env.SELECTED_AWS_REGION}"
             }
         }
         
-        stage("second stage") {
+        stage("build") {
             steps {
-                echo "There is another stage!"
+                script{
+                    docker.build("react-app:rest")
+                }
             }
         }
     }

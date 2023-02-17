@@ -4,17 +4,16 @@ services:
     container_name: jenkins_docker
     privileged: true
     ports:
-      - 2375:2375
+      - 2376:2376
     environment:
-      # - DOCKER_TLS_CERTDIR=/certs
-      - DOCKER_TLS_CERTDIR=""
+      - DOCKER_TLS_CERTDIR=/certs
     volumes:
       - ./certs:/certs/client
     command: ["--storage-driver", "overlay2"]
+    restart: always
 
   jenkis:
     container_name: jenkins
-    # image: jenkins/jenkins:lts
     build: .
     restart: always
     ports:
@@ -26,3 +25,5 @@ services:
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - ./certs:/certs/client:ro
+    depends_on:
+      - docker
